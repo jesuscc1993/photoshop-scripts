@@ -28,21 +28,25 @@ function processImage(file) {
   var doc = open(file);
   var originalHeight = doc.height.as('px');
   var originalWidth = doc.width.as('px');
+  var isJPG = /\.(jpg|jpeg)$/.test(file.name.toLowerCase());
 
-  // skip file if smaller than device
-  if (originalHeight >= deviceHeight) {
+  if (originalHeight > deviceHeight) {
+    // resize files larger than the device dimensions
+    var aspectRatio = originalWidth / originalHeight;
+    var newHeight = deviceHeight;
+    var newWidth = deviceHeight * aspectRatio;
+
+    doc.resizeImage(newWidth, newHeight, undefined, ResampleMethod.BICUBIC);
+  } else if (isJPG) {
+    // skip files smaller or equal to the device dimensions that are already saved as JPG
     doc.close(SaveOptions.DONOTSAVECHANGES);
     return;
   }
 
-  var aspectRatio = originalWidth / originalHeight;
-  var newHeight = deviceHeight;
-  var newWidth = deviceHeight * aspectRatio;
-
-  doc.resizeImage(newWidth, newHeight, undefined, ResampleMethod.BICUBIC);
-
   var jpgFile = new File(
-    file.path + '/' + file.name.replace(/\.[^\.]+$/, '') + '.jpg'
+    file.path +
+      '/' +
+      (isJPG ? file.name : file.name.replace(/\.[^\.]+$/, '') + '.jpg')
   );
   var jpgOptions = new JPEGSaveOptions();
   jpgOptions.quality = jpgQuality;
@@ -51,7 +55,7 @@ function processImage(file) {
   doc.close(SaveOptions.DONOTSAVECHANGES);
 
   // delete the original file when not overwriting
-  if (file.name.toLowerCase().indexOf('.jpg') === -1 && file.exists) {
+  if (!isJPG && file.exists) {
     file.remove();
   }
 }
