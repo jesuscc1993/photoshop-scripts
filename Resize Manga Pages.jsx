@@ -1,4 +1,3 @@
-var imageExtensions = ['jpg', 'jpeg', 'png'];
 var jpgQuality = 12;
 var deviceHeight = 1200;
 
