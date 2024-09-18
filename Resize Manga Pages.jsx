@@ -1,5 +1,5 @@
 var jpgQuality = 12;
-var deviceHeight = 1200;
+var deviceHeight = 1920;
 
 var parentFolder = Folder.selectDialog(
   'Select the folder containing your manga'
@@ -20,15 +20,11 @@ function processFolder(folder) {
   }
 }
 
-function isImageFile(file) {
-  return /\.(jpg|jpeg|png)$/.test(file.name.toLowerCase());
-}
-
 function processImage(file) {
   var doc = open(file);
   var originalHeight = doc.height.as('px');
   var originalWidth = doc.width.as('px');
-  var isJPG = /\.(jpg|jpeg)$/.test(file.name.toLowerCase());
+  var isJPG = isJPGFile(file);
 
   if (originalHeight > deviceHeight) {
     // resize files larger than the device dimensions
@@ -58,4 +54,12 @@ function processImage(file) {
   if (!isJPG && file.exists) {
     file.remove();
   }
+}
+
+function isImageFile(file) {
+  return /\.(jpg|jpeg|png)$/.test(file.name.toLowerCase());
+}
+
+function isJPGFile(file) {
+  return /\.(jpg|jpeg)$/.test(file.name.toLowerCase());
 }
