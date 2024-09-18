@@ -22,23 +22,25 @@ function processFolder(folder) {
 }
 
 function isImageFile(file) {
-  var fileExtension = file.name.toLowerCase().split('.').pop();
-  return imageExtensions.includes(fileExtension);
+  return /\.(jpg|jpeg|png)$/.test(file.name.toLowerCase());
 }
 
 function processImage(file) {
   var doc = open(file);
-
-  var originalWidth = doc.width.as('px');
   var originalHeight = doc.height.as('px');
+  var originalWidth = doc.width.as('px');
 
-  if (originalHeight > deviceHeight) {
-    var aspectRatio = originalWidth / originalHeight;
-    var newHeight = deviceHeight;
-    var newWidth = deviceHeight * aspectRatio;
-
-    doc.resizeImage(newWidth, newHeight, undefined, ResampleMethod.BICUBIC);
+  // skip file if smaller than device
+  if (originalHeight >= deviceHeight) {
+    doc.close(SaveOptions.DONOTSAVECHANGES);
+    return;
   }
+
+  var aspectRatio = originalWidth / originalHeight;
+  var newHeight = deviceHeight;
+  var newWidth = deviceHeight * aspectRatio;
+
+  doc.resizeImage(newWidth, newHeight, undefined, ResampleMethod.BICUBIC);
 
   var jpgFile = new File(
     file.path + '/' + file.name.replace(/\.[^\.]+$/, '') + '.jpg'
